@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Job shortlist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f3f1ec;
+        --surface: #fffcf7;
+        --ink: #1c1a17;
+        --muted: #6b6560;
+        --line: #ddd6cb;
+        --accent: #0f6b5c;
+        --accent-soft: #e4f2ef;
+        --warn: #8a5a12;
+        --danger: #8b3a2f;
+        --saved: #0f6b5c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "DM Sans", system-ui, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(ellipse 80% 50% at 10% -10%, #dceee9 0%, transparent 55%),
+          radial-gradient(ellipse 60% 40% at 100% 0%, #efe6d8 0%, transparent 50%),
+          var(--bg);
+      }
+
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+      }
+
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1.25rem;
+        margin-bottom: 1.75rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand h1 {
+        margin: 0 0 0.35rem;
+        font-size: 1.65rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .brand p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        max-width: 36rem;
+        line-height: 1.45;
+      }
+
+      .meta {
+        text-align: right;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.75rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .meta strong {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .tabs {
+        display: inline-flex;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .tabs button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        padding: 0.55rem 1rem;
+        font: inherit;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--muted);
+        cursor: pointer;
+      }
+
+      .tabs button[aria-selected="true"] {
+        background: var(--ink);
+        color: #fff;
+      }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-left: auto;
+      }
+
+      .filters select,
+      .filters input {
+        font: inherit;
+        font-size: 0.85rem;
+        padding: 0.45rem 0.65rem;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      .filters input {
+        min-width: 11rem;
+      }
+
+      .hint {
+        margin: 0 0 1.25rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .hint code {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+      }
+
+      .inline-btn {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--accent);
+        font: inherit;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.15rem 0.45rem;
+        border-radius: 4px;
+        cursor: pointer;
+        vertical-align: baseline;
+      }
+
+      .inline-btn:hover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      #pull-copied {
+        color: var(--accent);
+        font-weight: 600;
+        margin-left: 0.35rem;
+      }
+
+      .listings {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .listing {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 1.25rem 1.35rem 1.15rem;
+      }
+
+      .listing-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .company-name {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+      }
+
+      .company-about {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.45;
+        max-width: 38rem;
+      }
+
+      .score-block {
+        flex-shrink: 0;
+        text-align: right;
+      }
+
+      .score {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 600;
+        font-size: 1.35rem;
+        line-height: 1;
+      }
+
+      .score.strong {
+        color: var(--accent);
+      }
+
+      .score.look {
+        color: var(--ink);
+      }
+
+      .score.border {
+        color: var(--warn);
+      }
+
+      .score-band {
+        margin-top: 0.3rem;
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-transform: lowercase;
+      }
+
+      .role-title {
+        margin: 1rem 0 0.65rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+        line-height: 1.3;
+      }
+
+      .role-title a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .role-title a:hover {
+        color: var(--accent);
+        text-decoration: underline;
+      }
+
+      .meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 0.55rem;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .pill {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background: #ece7de;
+        color: var(--ink);
+        white-space: nowrap;
+      }
+
+      .pill.a {
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .pill.b {
+        background: #efe6d8;
+        color: #6a4a1a;
+      }
+
+      .pill.c {
+        background: #e4eaf2;
+        color: #2a4570;
+      }
+
+      .meta-item {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .meta-item strong {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      .dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--line);
+        flex-shrink: 0;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.55rem 0.75rem;
+      }
+
+      .btn-primary {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 0;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 0.55rem 0.95rem;
+        border-radius: 6px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .btn-primary:hover {
+        filter: brightness(1.05);
+      }
+
+      .btn-ghost {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 0.45rem 0.7rem;
+        border-radius: 6px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .btn-ghost:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .save-btn[aria-pressed="true"] {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+
+      .alt-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-left: auto;
+        font-size: 0.8rem;
+      }
+
+      .alt-links a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .alt-links a:hover {
+        text-decoration: underline;
+      }
+
+      .missing-posting {
+        font-size: 0.85rem;
+        color: var(--danger);
+      }
+
+      details.fit {
+        margin-top: 0.9rem;
+        padding-top: 0.85rem;
+        border-top: 1px solid var(--line);
+      }
+
+      details.fit summary {
+        cursor: pointer;
+        color: var(--accent);
+        font-size: 0.85rem;
+        font-weight: 600;
+        list-style: none;
+      }
+
+      details.fit summary::-webkit-details-marker {
+        display: none;
+      }
+
+      details.fit .body {
+        margin-top: 0.6rem;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        color: var(--ink);
+      }
+
+      details.fit .body p {
+        margin: 0 0 0.5rem;
+      }
+
+      details.fit .body p:last-child {
+        margin-bottom: 0;
+      }
+
+      details.fit .label {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+
+      .empty {
+        padding: 3rem 1.5rem;
+        text-align: center;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+
+      .empty strong {
+        display: block;
+        color: var(--ink);
+        font-size: 1.05rem;
+        margin-bottom: 0.4rem;
+      }
+
+      @media (max-width: 720px) {
+        .wrap {
+          padding: 1.25rem 1rem 3rem;
+        }
+
+        .meta {
+          text-align: left;
+        }
+
+        .filters {
+          margin-left: 0;
+          width: 100%;
+        }
+
+        .filters input {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .listing-top {
+          flex-direction: column;
+          gap: 0.65rem;
+        }
+
+        .score-block {
+          text-align: left;
+          display: flex;
+          align-items: baseline;
+          gap: 0.5rem;
+        }
+
+        .score-band {
+          margin-top: 0;
+        }
+
+        .alt-links {
+          margin-left: 0;
+          width: 100%;
+        }
+      }
+
+      #gate {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background: var(--bg);
+      }
+
+      #gate[hidden] {
+        display: none;
+      }
+
+      .gate-card {
+        width: min(100%, 22rem);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 1.5rem;
+      }
+
+      .gate-card h2 {
+        margin: 0 0 0.4rem;
+        font-size: 1.2rem;
+      }
+
+      .gate-card p {
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .gate-card form {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .gate-card input {
+        flex: 1;
+        font: inherit;
+        padding: 0.55rem 0.7rem;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #fff;
+      }
+
+      .gate-card button {
+        appearance: none;
+        border: 0;
+        background: var(--ink);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        padding: 0.55rem 0.9rem;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      .gate-error {
+        margin: 0.65rem 0 0;
+        color: var(--danger);
+        font-size: 0.85rem;
+        min-height: 1.2em;
+      }
+
+      #app[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="gate">
+      <div class="gate-card">
+        <h2>Job shortlist</h2>
+        <p>Enter your access PIN to open the dashboard.</p>
+        <form id="gate-form">
+          <input
+            id="gate-pin"
+            type="password"
+            inputmode="text"
+            autocomplete="current-password"
+            placeholder="PIN"
+            required
+          />
+          <button type="submit">Open</button>
+        </form>
+        <p class="gate-error" id="gate-error" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div id="app" hidden>
+      <div class="wrap">
+        <header>
+          <div class="brand">
+            <h1>Job shortlist</h1>
+            <p>
+              Matching roles from the morning board scan. LinkedIn merges in after you
+              update it from Cursor. Older than 3 weeks stay off the main list.
+            </p>
+          </div>
+          <div class="meta" id="scan-meta">
+            Boards: <strong>—</strong><br />
+            LinkedIn: <strong>—</strong><br />
+            Showing: <strong>—</strong>
+          </div>
+        </header>
+
+        <div class="toolbar">
+          <div class="tabs" role="tablist" aria-label="Views">
+            <button type="button" role="tab" id="tab-new" aria-selected="true" data-view="new">
+              New matches
+            </button>
+            <button type="button" role="tab" id="tab-saved" aria-selected="false" data-view="saved">
+              Saved
+            </button>
+          </div>
+          <div class="filters">
+            <select id="filter-bucket" aria-label="Bucket">
+              <option value="">All buckets</option>
+              <option value="A">A — remote</option>
+              <option value="B">B — Berlin hybrid</option>
+              <option value="C">C — relocation</option>
+            </select>
+            <select id="filter-band" aria-label="Score band">
+              <option value="">All scores</option>
+              <option value="80">80+ strong</option>
+              <option value="65">65+ worth a look</option>
+            </select>
+            <input type="search" id="filter-q" placeholder="Search title or company" />
+          </div>
+        </div>
+
+        <p class="hint" id="view-hint">
+          On the web link: just refresh this page after the morning scan. Local file only:
+          <button type="button" class="inline-btn" id="copy-pull">Copy git pull</button>
+          or double-click <code>Refresh dashboard.command</code>. LinkedIn: in Cursor ask
+          <code>update LinkedIn</code>.
+          <span id="pull-copied" hidden>Copied.</span>
+        </p>
+
+        <div class="listings" id="listings"></div>
+        <div class="empty" id="empty" hidden></div>
+      </div>
+    </div>
+
+    <script src="dashboard-data.js"></script>
+    <script>
+      (function () {
+        const PIN_HASH =
+          "87cc1254d26ca1dab40818554682e360016fe1f81efd1ee84326ab5fb8498def";
+        const UNLOCK_KEY = "petra-job-dashboard-unlocked-v1";
+        const isLocalFile = location.protocol === "file:";
+
+        async function sha256Hex(text) {
+          const buf = await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(text)
+          );
+          return [...new Uint8Array(buf)]
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        }
+
+        function showApp() {
+          document.getElementById("gate").hidden = true;
+          document.getElementById("app").hidden = false;
+        }
+
+        async function unlock(pin) {
+          const hash = await sha256Hex(String(pin).trim());
+          if (hash !== PIN_HASH) return false;
+          sessionStorage.setItem(UNLOCK_KEY, "1");
+          showApp();
+          return true;
+        }
+
+        // Local file viewing skips PIN (crypto.subtle often unavailable on file://).
+        if (isLocalFile || sessionStorage.getItem(UNLOCK_KEY) === "1") {
+          showApp();
+        }
+
+        document.getElementById("gate-form").addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const ok = await unlock(document.getElementById("gate-pin").value);
+          document.getElementById("gate-error").textContent = ok
+            ? ""
+            : "Wrong PIN. Try again.";
+          if (ok) boot();
+        });
+
+        if (!isLocalFile && sessionStorage.getItem(UNLOCK_KEY) !== "1") {
+          return;
+        }
+
+        boot();
+
+        function boot() {
+          const STORAGE_KEY = "petra-job-dashboard-saved-v1";
+          const MAX_AGE_MS = 21 * 24 * 60 * 60 * 1000;
+          const data = window.JOB_DASHBOARD || { jobs: [], maxAgeDays: 21 };
+
+          let view = "new";
+          const state = {
+            bucket: "",
+            band: "",
+            q: "",
+          };
+
+          function loadSavedMap() {
+            try {
+              return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+            } catch {
+              return {};
+            }
+          }
+
+          function writeSavedMap(map) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+          }
+
+          function fmtDate(iso) {
+            if (!iso) return "—";
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return "—";
+            return d.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            });
+          }
+
+          function fmtWhen(iso) {
+            if (!iso) return "not yet";
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return "not yet";
+            return d.toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          }
+
+          function isFresh(job) {
+            if (!job.postedAt) return true;
+            const t = new Date(job.postedAt).getTime();
+            if (Number.isNaN(t)) return true;
+            return Date.now() - t <= MAX_AGE_MS;
+          }
+
+          function scoreClass(score) {
+            if (score >= 80) return "strong";
+            if (score >= 65) return "look";
+            return "border";
+          }
+
+          function escapeHtml(s) {
+            return String(s ?? "")
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;");
+          }
+
+          function postingUrl(job) {
+            return (
+              job.postingUrl ||
+              job.boardUrl ||
+              job.directApplyUrl ||
+              (job.linkedinUrl && job.linkedinUrl !== "not on LinkedIn"
+                ? job.linkedinUrl
+                : "") ||
+              ""
+            );
+          }
+
+          function fitBlock(job) {
+            if (
+              !job.summary &&
+              !job.whyFit &&
+              !job.gaps &&
+              !(job.talkingPoints && job.talkingPoints.length)
+            ) {
+              return "";
+            }
+            const tips = (job.talkingPoints || [])
+              .map((t) => `<p>· ${escapeHtml(t)}</p>`)
+              .join("");
+            return `<details class="fit"><summary>Notes &amp; fit</summary><div class="body">
+            ${
+              job.summary
+                ? `<p><span class="label">Role</span><br />${escapeHtml(job.summary)}</p>`
+                : ""
+            }
+            ${
+              job.whyFit
+                ? `<p><span class="label">Fit</span><br />${escapeHtml(job.whyFit)}</p>`
+                : ""
+            }
+            ${
+              job.gaps
+                ? `<p><span class="label">Gaps</span><br />${escapeHtml(job.gaps)}</p>`
+                : ""
+            }
+            ${tips}
+          </div></details>`;
+          }
+
+          function listingHtml(job, savedMap) {
+            const id = job.id || job.fingerprint;
+            const saved = Boolean(savedMap[id]);
+            const url = postingUrl(job);
+            const bucket = (job.bucket || "").toLowerCase();
+
+            const metaBits = [];
+            if (job.bucket) {
+              metaBits.push(
+                `<span class="pill ${bucket}">Bucket ${escapeHtml(job.bucket)}</span>`
+              );
+            }
+            if (job.workModel || job.location) {
+              metaBits.push(
+                `<span class="meta-item"><strong>${escapeHtml(
+                  job.workModel || ""
+                )}</strong>${
+                  job.location
+                    ? (job.workModel ? " · " : "") + escapeHtml(job.location)
+                    : ""
+                }</span>`
+              );
+            }
+            if (job.salary) {
+              metaBits.push(
+                `<span class="meta-item"><strong>${escapeHtml(job.salary)}</strong></span>`
+              );
+            }
+            if (job.postedAt) {
+              metaBits.push(
+                `<span class="meta-item">Posted ${escapeHtml(fmtDate(job.postedAt))}</span>`
+              );
+            }
+            if (job.source) {
+              metaBits.push(
+                `<span class="meta-item">via ${escapeHtml(job.source)}</span>`
+              );
+            }
+
+            const alt = [];
+            if (job.directApplyUrl && job.directApplyUrl !== url) {
+              alt.push(
+                `<a href="${escapeHtml(job.directApplyUrl)}" target="_blank" rel="noopener">Direct apply</a>`
+              );
+            }
+            if (job.linkedinUrl && job.linkedinUrl !== "not on LinkedIn" && job.linkedinUrl !== url) {
+              alt.push(
+                `<a href="${escapeHtml(job.linkedinUrl)}" target="_blank" rel="noopener">LinkedIn</a>`
+              );
+            }
+            if (job.boardUrl && job.boardUrl !== url && job.boardUrl !== job.directApplyUrl) {
+              alt.push(
+                `<a href="${escapeHtml(job.boardUrl)}" target="_blank" rel="noopener">Board listing</a>`
+              );
+            }
+
+            const primary = url
+              ? `<a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener">Read full posting</a>`
+              : `<span class="missing-posting">No posting link yet</span>`;
+
+            return `<article class="listing" data-id="${escapeHtml(id)}">
+              <div class="listing-top">
+                <div>
+                  <h2 class="company-name">${escapeHtml(job.company || "Unknown company")}</h2>
+                  <p class="company-about">${escapeHtml(
+                    job.companyAbout || "Company brief not filled yet."
+                  )}</p>
+                </div>
+                <div class="score-block">
+                  <div class="score ${scoreClass(job.score || 0)}">${escapeHtml(
+                    job.score ?? "—"
+                  )}</div>
+                  <div class="score-band">${escapeHtml(job.band || "")}</div>
+                </div>
+              </div>
+
+              <h3 class="role-title">${
+                url
+                  ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(
+                      job.title || "Untitled role"
+                    )}</a>`
+                  : escapeHtml(job.title || "Untitled role")
+              }</h3>
+
+              <div class="meta-row">${metaBits.join('<span class="dot" aria-hidden="true"></span>')}</div>
+
+              <div class="actions">
+                ${primary}
+                <button type="button" class="btn-ghost save-btn" data-save="${escapeHtml(
+                  id
+                )}" aria-pressed="${saved}">${saved ? "Saved" : "Save"}</button>
+                ${alt.length ? `<div class="alt-links">${alt.join("")}</div>` : ""}
+              </div>
+
+              ${fitBlock(job)}
+            </article>`;
+          }
+
+          function getVisibleJobs(savedMap) {
+            if (view === "saved") {
+              return Object.values(savedMap).sort((a, b) => (b.score || 0) - (a.score || 0));
+            }
+
+            return (data.jobs || [])
+              .filter(isFresh)
+              .filter((j) => !state.bucket || j.bucket === state.bucket)
+              .filter((j) => !state.band || (j.score || 0) >= Number(state.band))
+              .filter((j) => {
+                if (!state.q) return true;
+                const hay = `${j.title || ""} ${j.company || ""} ${j.companyAbout || ""}`.toLowerCase();
+                return hay.includes(state.q.toLowerCase());
+              })
+              .slice()
+              .sort((a, b) => {
+                const da = a.postedAt ? new Date(a.postedAt).getTime() : 0;
+                const db = b.postedAt ? new Date(b.postedAt).getTime() : 0;
+                if (db !== da) return db - da;
+                return (b.score || 0) - (a.score || 0);
+              });
+          }
+
+          function render() {
+            const savedMap = loadSavedMap();
+            const listingsEl = document.getElementById("listings");
+            const emptyEl = document.getElementById("empty");
+            const jobs = getVisibleJobs(savedMap);
+
+            document.getElementById("scan-meta").innerHTML = `
+            Boards: <strong>${escapeHtml(fmtWhen(data.boardsScannedAt))}</strong><br />
+            LinkedIn: <strong>${escapeHtml(fmtWhen(data.linkedinScannedAt))}</strong><br />
+            Showing: <strong>${jobs.length}</strong> · max age 3 weeks
+          `;
+
+            document.getElementById("view-hint").hidden = view === "saved";
+            document.getElementById("filter-bucket").disabled = view === "saved";
+            document.getElementById("filter-band").disabled = view === "saved";
+
+            if (!jobs.length) {
+              listingsEl.innerHTML = "";
+              emptyEl.hidden = false;
+              if (view === "saved") {
+                emptyEl.innerHTML =
+                  "<strong>No saved jobs yet</strong>Mark roles with Save. They stay here even after ageing off the main list.";
+              } else if (!(data.jobs && data.jobs.length)) {
+                emptyEl.innerHTML =
+                  "<strong>No scan data yet</strong>The morning board run will fill this list. Refresh after a scan.";
+              } else {
+                emptyEl.innerHTML =
+                  "<strong>Nothing in the last 3 weeks</strong>Try clearing filters, or run an update.";
+              }
+              return;
+            }
+
+            emptyEl.hidden = true;
+            listingsEl.innerHTML = jobs.map((j) => listingHtml(j, savedMap)).join("");
+          }
+
+          document.querySelectorAll(".tabs button").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              view = btn.dataset.view;
+              document.querySelectorAll(".tabs button").forEach((b) => {
+                b.setAttribute("aria-selected", String(b === btn));
+              });
+              render();
+            });
+          });
+
+          document.getElementById("filter-bucket").addEventListener("change", (e) => {
+            state.bucket = e.target.value;
+            render();
+          });
+          document.getElementById("filter-band").addEventListener("change", (e) => {
+            state.band = e.target.value;
+            render();
+          });
+          document.getElementById("filter-q").addEventListener("input", (e) => {
+            state.q = e.target.value.trim();
+            render();
+          });
+
+          document.getElementById("listings").addEventListener("click", (e) => {
+            const btn = e.target.closest("[data-save]");
+            if (!btn) return;
+            const id = btn.getAttribute("data-save");
+            const map = loadSavedMap();
+            if (map[id]) {
+              delete map[id];
+            } else {
+              const fromData = (data.jobs || []).find((j) => (j.id || j.fingerprint) === id);
+              const job = fromData || map[id];
+              if (job) map[id] = { ...job, savedAt: new Date().toISOString() };
+            }
+            writeSavedMap(map);
+            render();
+          });
+
+          document.getElementById("copy-pull").addEventListener("click", async () => {
+            const cmd = "git pull";
+            try {
+              await navigator.clipboard.writeText(cmd);
+            } catch {
+              const ta = document.createElement("textarea");
+              ta.value = cmd;
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              ta.remove();
+            }
+            const note = document.getElementById("pull-copied");
+            note.hidden = false;
+            setTimeout(() => {
+              note.hidden = true;
+            }, 2000);
+          });
+
+          render();
+        }
+      })();
+    </script>
+  </body>
+</html>
