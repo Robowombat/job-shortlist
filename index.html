@@ -286,19 +286,14 @@
         white-space: nowrap;
       }
 
-      .pill.a {
+      .pill.remote {
         background: var(--accent-soft);
         color: var(--accent);
       }
 
-      .pill.b {
+      .pill.hybrid {
         background: #efe6d8;
         color: #6a4a1a;
-      }
-
-      .pill.c {
-        background: #e4eaf2;
-        color: #2a4570;
       }
 
       .meta-item {
@@ -371,6 +366,12 @@
         border-color: var(--accent);
         background: var(--accent-soft);
         color: var(--accent);
+      }
+
+      .dismiss-btn:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: #f7ecea;
       }
 
       .alt-links {
@@ -695,6 +696,7 @@
 
         function boot() {
           const STORAGE_KEY = "petra-job-dashboard-saved-v1";
+          const DISMISS_KEY = "petra-job-dashboard-dismissed-v1";
           const MAX_AGE_MS = 21 * 24 * 60 * 60 * 1000;
           const data = window.JOB_DASHBOARD || { jobs: [], maxAgeDays: 21 };
 
@@ -715,6 +717,19 @@
 
           function writeSavedMap(map) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+          }
+
+          function loadDismissed() {
+            try {
+              const raw = JSON.parse(localStorage.getItem(DISMISS_KEY) || "[]");
+              return new Set(Array.isArray(raw) ? raw : []);
+            } catch {
+              return new Set();
+            }
+          }
+
+          function writeDismissed(set) {
+            localStorage.setItem(DISMISS_KEY, JSON.stringify([...set]));
           }
 
           function fmtDate(iso) {
@@ -805,28 +820,42 @@
           </div></details>`;
           }
 
+          function workModelPill(job) {
+            const blob = `${job.workModel || ""} ${job.location || ""}`.toLowerCase();
+            if (/\bremote\b/.test(blob)) return { key: "remote", label: "Remote" };
+            if (/\bhybrid\b/.test(blob)) return { key: "hybrid", label: "Hybrid" };
+            return null;
+          }
+
+          function cleanLocation(job, modelKey) {
+            let loc = (job.location || "").trim();
+            if (!loc) return "";
+            if (modelKey) {
+              loc = loc
+                .replace(new RegExp(`\\b${modelKey}\\b`, "gi"), " ")
+                .replace(/\s*[·|,/-]+\s*/g, " · ")
+                .replace(/\s{2,}/g, " ")
+                .replace(/^(?:\s*·\s*)+|(?:\s*·\s*)+$/g, "")
+                .trim();
+            }
+            return loc;
+          }
+
           function listingHtml(job, savedMap) {
             const id = job.id || job.fingerprint;
             const saved = Boolean(savedMap[id]);
             const url = postingUrl(job);
-            const bucket = (job.bucket || "").toLowerCase();
+            const model = workModelPill(job);
 
             const metaBits = [];
-            if (job.bucket) {
+            if (model) {
               metaBits.push(
-                `<span class="pill ${bucket}">Bucket ${escapeHtml(job.bucket)}</span>`
+                `<span class="pill ${model.key}">${escapeHtml(model.label)}</span>`
               );
             }
-            if (job.workModel || job.location) {
-              metaBits.push(
-                `<span class="meta-item"><strong>${escapeHtml(
-                  job.workModel || ""
-                )}</strong>${
-                  job.location
-                    ? (job.workModel ? " · " : "") + escapeHtml(job.location)
-                    : ""
-                }</span>`
-              );
+            const place = cleanLocation(job, model && model.key);
+            if (place) {
+              metaBits.push(`<span class="meta-item">${escapeHtml(place)}</span>`);
             }
             if (job.salary) {
               metaBits.push(
@@ -850,14 +879,15 @@
                 `<a href="${escapeHtml(job.directApplyUrl)}" target="_blank" rel="noopener">Direct apply</a>`
               );
             }
-            if (job.linkedinUrl && job.linkedinUrl !== "not on LinkedIn" && job.linkedinUrl !== url) {
+            // Don't repeat the board/source channel as a second "Board listing"
+            // link when it's the same source already shown in meta.
+            if (
+              job.linkedinUrl &&
+              job.linkedinUrl !== "not on LinkedIn" &&
+              job.linkedinUrl !== url
+            ) {
               alt.push(
                 `<a href="${escapeHtml(job.linkedinUrl)}" target="_blank" rel="noopener">LinkedIn</a>`
-              );
-            }
-            if (job.boardUrl && job.boardUrl !== url && job.boardUrl !== job.directApplyUrl) {
-              alt.push(
-                `<a href="${escapeHtml(job.boardUrl)}" target="_blank" rel="noopener">Board listing</a>`
               );
             }
 
@@ -896,6 +926,9 @@
                 <button type="button" class="btn-ghost save-btn" data-save="${escapeHtml(
                   id
                 )}" aria-pressed="${saved}">${saved ? "Saved" : "Save"}</button>
+                <button type="button" class="btn-ghost dismiss-btn" data-dismiss="${escapeHtml(
+                  id
+                )}">Dismiss</button>
                 ${alt.length ? `<div class="alt-links">${alt.join("")}</div>` : ""}
               </div>
 
@@ -903,13 +936,16 @@
             </article>`;
           }
 
-          function getVisibleJobs(savedMap) {
+          function getVisibleJobs(savedMap, dismissed) {
             if (view === "saved") {
-              return Object.values(savedMap).sort((a, b) => (b.score || 0) - (a.score || 0));
+              return Object.values(savedMap)
+                .filter((j) => !dismissed.has(j.id || j.fingerprint))
+                .sort((a, b) => (b.score || 0) - (a.score || 0));
             }
 
             return (data.jobs || [])
               .filter(isFresh)
+              .filter((j) => !dismissed.has(j.id || j.fingerprint))
               .filter((j) => !state.bucket || j.bucket === state.bucket)
               .filter((j) => !state.band || (j.score || 0) >= Number(state.band))
               .filter((j) => {
@@ -928,9 +964,10 @@
 
           function render() {
             const savedMap = loadSavedMap();
+            const dismissed = loadDismissed();
             const listingsEl = document.getElementById("listings");
             const emptyEl = document.getElementById("empty");
-            const jobs = getVisibleJobs(savedMap);
+            const jobs = getVisibleJobs(savedMap, dismissed);
 
             document.getElementById("scan-meta").innerHTML = `
             Boards: <strong>${escapeHtml(fmtWhen(data.boardsScannedAt))}</strong><br />
@@ -986,6 +1023,34 @@
           });
 
           document.getElementById("listings").addEventListener("click", (e) => {
+            const dismissBtn = e.target.closest("[data-dismiss]");
+            if (dismissBtn) {
+              const id = dismissBtn.getAttribute("data-dismiss");
+              const job =
+                (data.jobs || []).find((j) => (j.id || j.fingerprint) === id) ||
+                loadSavedMap()[id];
+              const label = job
+                ? `${job.company || "This role"} — ${job.title || "untitled"}`
+                : "This role";
+              if (
+                !confirm(
+                  `Dismiss ${label}?\n\nIt will be removed and won’t show again on this device.`
+                )
+              ) {
+                return;
+              }
+              const dismissed = loadDismissed();
+              dismissed.add(id);
+              writeDismissed(dismissed);
+              const map = loadSavedMap();
+              if (map[id]) {
+                delete map[id];
+                writeSavedMap(map);
+              }
+              render();
+              return;
+            }
+
             const btn = e.target.closest("[data-save]");
             if (!btn) return;
             const id = btn.getAttribute("data-save");
