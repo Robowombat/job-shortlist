@@ -408,6 +408,27 @@
         filter: brightness(1.05);
       }
 
+      .btn-secondary {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 0;
+        background: var(--accent-soft);
+        color: #8a6a30;
+        font: inherit;
+        font-size: 0.88rem;
+        font-weight: 600;
+        padding: 0.55rem 0.95rem;
+        border-radius: 6px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .btn-secondary:hover {
+        filter: brightness(0.97);
+      }
+
       .btn-ghost {
         appearance: none;
         border: 0;
@@ -690,14 +711,6 @@
           </div>
         </div>
 
-        <p class="hint" id="view-hint">
-          On the web link: just refresh this page after the morning scan. Local file only:
-          <button type="button" class="inline-btn" id="copy-pull">Copy git pull</button>
-          or double-click <code>Refresh dashboard.command</code>. LinkedIn: in Cursor ask
-          <code>update LinkedIn</code>.
-          <span id="pull-copied" hidden>Copied.</span>
-        </p>
-
         <div class="listings" id="listings"></div>
         <div class="empty" id="empty" hidden></div>
       </div>
@@ -955,6 +968,10 @@
               ? `<a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener">Read full posting</a>`
               : `<span class="missing-posting">No posting link yet</span>`;
 
+            const coverBtn = `<button type="button" class="btn-secondary" data-cover="${escapeHtml(
+              id
+            )}">Cover letter</button>`;
+
             const heartOutline = `<svg class="heart-outline" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5c-1.74 0-3.41.81-4.5 2.09A6.07 6.07 0 0 0 7.5 3.5 5.5 5.5 0 0 0 2 9c0 6.25 10 11.5 10 11.5S22 15.25 22 9a5.5 5.5 0 0 0-5.5-5.5z"/></svg>`;
             const heartFilled = `<svg class="heart-filled" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M16.5 3.5c-1.74 0-3.41.81-4.5 2.09A6.07 6.07 0 0 0 7.5 3.5 5.5 5.5 0 0 0 2 9c0 6.25 10 11.5 10 11.5S22 15.25 22 9a5.5 5.5 0 0 0-5.5-5.5z"/></svg>`;
             const xIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
@@ -988,6 +1005,7 @@
 
               <div class="actions">
                 ${primary}
+                ${coverBtn}
                 ${alt.length ? `<div class="alt-links">${alt.join("")}</div>` : ""}
               </div>
 
@@ -1045,7 +1063,6 @@
             Showing: <strong>${jobs.length}</strong> · max age 3 weeks
           `;
 
-            document.getElementById("view-hint").hidden = view === "saved";
             document.getElementById("filter-bucket").disabled = view === "saved";
             document.getElementById("filter-band").disabled = view === "saved";
 
@@ -1092,13 +1109,64 @@
             render();
           });
 
+          function findJob(id) {
+            return (
+              (data.jobs || []).find((j) => (j.id || j.fingerprint) === id) ||
+              loadSavedMap()[id] ||
+              null
+            );
+          }
+
+          function buildCoverLetterPrompt(job) {
+            const url = postingUrl(job);
+            const tips = (job.talkingPoints || []).map((t) => `- ${t}`).join("\n");
+            return `Run /write-cover-letter for Petra in this project:
+
+/Users/petrafolk/Documents/Design/00 AI Projects/My CV : Portfolio
+
+If you are NOT already in that workspace, stop and ask me to open My CV : Portfolio first, then continue.
+
+Job to write for:
+- Company: ${job.company || ""}
+- Role: ${job.title || ""}
+- About the company: ${job.companyAbout || ""}
+- Work model / location: ${[job.workModel, job.location].filter(Boolean).join(" · ")}
+- Salary: ${job.salary || "unstated"}
+- Source: ${job.source || ""}
+- Posting URL (read the full description): ${url || "(none — use the notes below)"}
+- Summary: ${job.summary || ""}
+- Why fit: ${job.whyFit || ""}
+- Gaps: ${job.gaps || ""}
+${tips ? `Talking points:\n${tips}` : ""}
+
+Do it now: open the posting, follow cover-letters/_TEMPLATE.html + voice of 1komma5/elearnio, write cover-letters/{slug}.html, open the file when done. No invented experience.`;
+          }
+
+          function openCoverLetterInCursor(job) {
+            const prompt = buildCoverLetterPrompt(job);
+            const deeplink =
+              "cursor://anysphere.cursor-deeplink/prompt?text=" +
+              encodeURIComponent(prompt);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(prompt).catch(() => {});
+            }
+            window.location.href = deeplink;
+          }
+
           document.getElementById("listings").addEventListener("click", (e) => {
+            const coverBtn = e.target.closest("[data-cover]");
+            if (coverBtn) {
+              const id = coverBtn.getAttribute("data-cover");
+              const job = findJob(id);
+              if (!job) return;
+              openCoverLetterInCursor(job);
+              return;
+            }
+
             const dismissBtn = e.target.closest("[data-dismiss]");
             if (dismissBtn) {
               const id = dismissBtn.getAttribute("data-dismiss");
-              const job =
-                (data.jobs || []).find((j) => (j.id || j.fingerprint) === id) ||
-                loadSavedMap()[id];
+              const job = findJob(id);
               const label = job
                 ? `${job.company || "This role"} — ${job.title || "untitled"}`
                 : "This role";
@@ -1134,25 +1202,6 @@
             }
             writeSavedMap(map);
             render();
-          });
-
-          document.getElementById("copy-pull").addEventListener("click", async () => {
-            const cmd = "git pull";
-            try {
-              await navigator.clipboard.writeText(cmd);
-            } catch {
-              const ta = document.createElement("textarea");
-              ta.value = cmd;
-              document.body.appendChild(ta);
-              ta.select();
-              document.execCommand("copy");
-              ta.remove();
-            }
-            const note = document.getElementById("pull-copied");
-            note.hidden = false;
-            setTimeout(() => {
-              note.hidden = true;
-            }, 2000);
           });
 
           render();
