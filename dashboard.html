@@ -13,16 +13,18 @@
     />
     <style>
       :root {
-        --bg: #f3f1ec;
-        --surface: #fffcf7;
+        --bg: #ffffff;
+        --surface: #ffffff;
         --ink: #1c1a17;
         --muted: #6b6560;
-        --line: #ddd6cb;
-        --accent: #0f6b5c;
-        --accent-soft: #e4f2ef;
+        --line: #ebe7e0;
+        --accent: #bd934e;
+        --accent-soft: #f6efe3;
         --warn: #8a5a12;
         --danger: #8b3a2f;
-        --saved: #0f6b5c;
+        --saved: #bd934e;
+        --shadow: 0 4px 24px rgba(28, 26, 23, 0.06), 0 1px 3px rgba(28, 26, 23, 0.04);
+        --shadow-soft: 0 2px 12px rgba(28, 26, 23, 0.05);
       }
 
       * {
@@ -34,10 +36,7 @@
         min-height: 100vh;
         font-family: "DM Sans", system-ui, sans-serif;
         color: var(--ink);
-        background:
-          radial-gradient(ellipse 80% 50% at 10% -10%, #dceee9 0%, transparent 55%),
-          radial-gradient(ellipse 60% 40% at 100% 0%, #efe6d8 0%, transparent 50%),
-          var(--bg);
+        background: var(--bg);
       }
 
       .wrap {
@@ -53,8 +52,8 @@
         justify-content: space-between;
         gap: 1.25rem;
         margin-bottom: 1.75rem;
-        padding-bottom: 1.25rem;
-        border-bottom: 1px solid var(--line);
+        padding-bottom: 0;
+        border: 0;
       }
 
       .brand h1 {
@@ -95,10 +94,11 @@
 
       .tabs {
         display: inline-flex;
-        border: 1px solid var(--line);
+        border: 0;
         background: var(--surface);
-        border-radius: 6px;
+        border-radius: 8px;
         overflow: hidden;
+        box-shadow: var(--shadow-soft);
       }
 
       .tabs button {
@@ -130,10 +130,11 @@
         font: inherit;
         font-size: 0.85rem;
         padding: 0.45rem 0.65rem;
-        border: 1px solid var(--line);
-        border-radius: 6px;
+        border: 0;
+        border-radius: 8px;
         background: var(--surface);
         color: var(--ink);
+        box-shadow: var(--shadow-soft);
       }
 
       .filters input {
@@ -150,16 +151,16 @@
       .hint code {
         font-family: "IBM Plex Mono", monospace;
         font-size: 0.8rem;
-        background: var(--surface);
-        border: 1px solid var(--line);
+        background: #f7f5f1;
+        border: 0;
         padding: 0.1rem 0.35rem;
         border-radius: 4px;
       }
 
       .inline-btn {
         appearance: none;
-        border: 1px solid var(--line);
-        background: var(--surface);
+        border: 0;
+        background: var(--accent-soft);
         color: var(--accent);
         font: inherit;
         font-size: 0.8rem;
@@ -171,8 +172,7 @@
       }
 
       .inline-btn:hover {
-        border-color: var(--accent);
-        background: var(--accent-soft);
+        filter: brightness(0.97);
       }
 
       #pull-copied {
@@ -184,7 +184,7 @@
       .listings {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.15rem;
       }
 
       .listing-row {
@@ -197,9 +197,10 @@
         flex: 1;
         min-width: 0;
         background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border: 0;
+        border-radius: 12px;
         padding: 1.25rem 1.35rem 1.15rem;
+        box-shadow: var(--shadow);
       }
 
       .listing-side {
@@ -215,7 +216,7 @@
         width: 2.25rem;
         height: 2.25rem;
         border-radius: 50%;
-        border: 1px solid var(--line);
+        border: 0;
         background: var(--surface);
         color: var(--muted);
         display: inline-flex;
@@ -223,7 +224,7 @@
         justify-content: center;
         cursor: pointer;
         padding: 0;
-        box-shadow: 0 1px 2px rgba(28, 26, 23, 0.04);
+        box-shadow: var(--shadow);
       }
 
       .icon-btn svg {
@@ -233,19 +234,16 @@
       }
 
       .icon-btn.dismiss-btn:hover {
-        border-color: var(--danger);
         color: var(--danger);
         background: #f7ecea;
       }
 
       .icon-btn.save-btn:hover {
-        border-color: var(--accent);
         color: var(--accent);
         background: var(--accent-soft);
       }
 
       .icon-btn.save-btn[aria-pressed="true"] {
-        border-color: var(--accent);
         color: var(--accent);
         background: var(--accent-soft);
       }
@@ -356,11 +354,11 @@
 
       .pill.remote {
         background: var(--accent-soft);
-        color: var(--accent);
+        color: #8a6a30;
       }
 
       .pill.hybrid {
-        background: #efe6d8;
+        background: #f3eee6;
         color: #6a4a1a;
       }
 
@@ -378,7 +376,7 @@
         width: 3px;
         height: 3px;
         border-radius: 50%;
-        background: var(--line);
+        background: #d9d3c8;
         flex-shrink: 0;
       }
 
@@ -412,8 +410,8 @@
 
       .btn-ghost {
         appearance: none;
-        border: 1px solid var(--line);
-        background: transparent;
+        border: 0;
+        background: #f7f5f1;
         color: var(--ink);
         font: inherit;
         font-size: 0.82rem;
@@ -422,10 +420,10 @@
         border-radius: 6px;
         text-decoration: none;
         cursor: pointer;
+        box-shadow: var(--shadow-soft);
       }
 
       .btn-ghost:hover {
-        border-color: var(--accent);
         color: var(--accent);
         background: var(--accent-soft);
       }
@@ -456,7 +454,7 @@
       details.fit {
         margin-top: 0.9rem;
         padding-top: 0.85rem;
-        border-top: 1px solid var(--line);
+        border: 0;
       }
 
       details.fit summary {
@@ -499,8 +497,9 @@
         text-align: center;
         color: var(--muted);
         background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border: 0;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
       }
 
       .empty strong {
@@ -573,9 +572,10 @@
       .gate-card {
         width: min(100%, 22rem);
         background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 10px;
+        border: 0;
+        border-radius: 12px;
         padding: 1.5rem;
+        box-shadow: var(--shadow);
       }
 
       .gate-card h2 {
@@ -599,15 +599,15 @@
         flex: 1;
         font: inherit;
         padding: 0.55rem 0.7rem;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        background: #fff;
+        border: 0;
+        border-radius: 8px;
+        background: #f7f5f1;
       }
 
       .gate-card button {
         appearance: none;
         border: 0;
-        background: var(--ink);
+        background: var(--accent);
         color: #fff;
         font: inherit;
         font-weight: 600;
