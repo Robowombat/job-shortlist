@@ -187,11 +187,79 @@
         gap: 1rem;
       }
 
+      .listing-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+      }
+
       .listing {
+        flex: 1;
+        min-width: 0;
         background: var(--surface);
         border: 1px solid var(--line);
         border-radius: 10px;
         padding: 1.25rem 1.35rem 1.15rem;
+      }
+
+      .listing-side {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        padding-top: 0.15rem;
+        flex-shrink: 0;
+      }
+
+      .icon-btn {
+        appearance: none;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--muted);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        box-shadow: 0 1px 2px rgba(28, 26, 23, 0.04);
+      }
+
+      .icon-btn svg {
+        width: 1.05rem;
+        height: 1.05rem;
+        display: block;
+      }
+
+      .icon-btn.dismiss-btn:hover {
+        border-color: var(--danger);
+        color: var(--danger);
+        background: #f7ecea;
+      }
+
+      .icon-btn.save-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .icon-btn.save-btn[aria-pressed="true"] {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .icon-btn.save-btn[aria-pressed="true"] .heart-outline {
+        display: none;
+      }
+
+      .icon-btn.save-btn[aria-pressed="true"] .heart-filled {
+        display: block;
+      }
+
+      .icon-btn.save-btn .heart-filled {
+        display: none;
       }
 
       .listing-top {
@@ -362,18 +430,6 @@
         background: var(--accent-soft);
       }
 
-      .save-btn[aria-pressed="true"] {
-        border-color: var(--accent);
-        background: var(--accent-soft);
-        color: var(--accent);
-      }
-
-      .dismiss-btn:hover {
-        border-color: var(--danger);
-        color: var(--danger);
-        background: #f7ecea;
-      }
-
       .alt-links {
         display: flex;
         flex-wrap: wrap;
@@ -492,6 +548,10 @@
         .alt-links {
           margin-left: 0;
           width: 100%;
+        }
+
+        .listing-side {
+          padding-top: 0;
         }
       }
 
@@ -895,7 +955,12 @@
               ? `<a class="btn-primary" href="${escapeHtml(url)}" target="_blank" rel="noopener">Read full posting</a>`
               : `<span class="missing-posting">No posting link yet</span>`;
 
-            return `<article class="listing" data-id="${escapeHtml(id)}">
+            const heartOutline = `<svg class="heart-outline" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5c-1.74 0-3.41.81-4.5 2.09A6.07 6.07 0 0 0 7.5 3.5 5.5 5.5 0 0 0 2 9c0 6.25 10 11.5 10 11.5S22 15.25 22 9a5.5 5.5 0 0 0-5.5-5.5z"/></svg>`;
+            const heartFilled = `<svg class="heart-filled" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M16.5 3.5c-1.74 0-3.41.81-4.5 2.09A6.07 6.07 0 0 0 7.5 3.5 5.5 5.5 0 0 0 2 9c0 6.25 10 11.5 10 11.5S22 15.25 22 9a5.5 5.5 0 0 0-5.5-5.5z"/></svg>`;
+            const xIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+
+            return `<div class="listing-row">
+              <article class="listing" data-id="${escapeHtml(id)}">
               <div class="listing-top">
                 <div>
                   <h2 class="company-name">${escapeHtml(job.company || "Unknown company")}</h2>
@@ -923,17 +988,22 @@
 
               <div class="actions">
                 ${primary}
-                <button type="button" class="btn-ghost save-btn" data-save="${escapeHtml(
-                  id
-                )}" aria-pressed="${saved}">${saved ? "Saved" : "Save"}</button>
-                <button type="button" class="btn-ghost dismiss-btn" data-dismiss="${escapeHtml(
-                  id
-                )}">Dismiss</button>
                 ${alt.length ? `<div class="alt-links">${alt.join("")}</div>` : ""}
               </div>
 
               ${fitBlock(job)}
-            </article>`;
+            </article>
+              <div class="listing-side">
+                <button type="button" class="icon-btn dismiss-btn" data-dismiss="${escapeHtml(
+                  id
+                )}" aria-label="Dismiss" title="Dismiss">${xIcon}</button>
+                <button type="button" class="icon-btn save-btn" data-save="${escapeHtml(
+                  id
+                )}" aria-pressed="${saved}" aria-label="${
+              saved ? "Unsave" : "Save"
+            }" title="${saved ? "Saved" : "Save"}">${heartOutline}${heartFilled}</button>
+              </div>
+            </div>`;
           }
 
           function getVisibleJobs(savedMap, dismissed) {
